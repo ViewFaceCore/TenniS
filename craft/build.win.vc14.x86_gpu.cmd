@@ -9,7 +9,7 @@ set "ORZ_HOME=D:\3rd\local"
 
 set "INSTALL_DIR=%~dp0/../../build"
 
-call "%VS140COMNTOOLS%..\..\VC\vcvarsall.bat" %PLATFORM%
+call "%VctPath%\vcvarsall.bat" %PLATFORM%
 
 cd %~dp0
 

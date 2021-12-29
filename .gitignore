@@ -20,3 +20,8 @@
 # project files
 /.idea
 
+build/
+bin/
+lib/
+lib*/
+build.*/
