@@ -88,6 +88,12 @@ inline _simd_f32x4 _simd_f32x4_div(_simd_f32x4 lhs, _simd_f32x4 rhs) {
     return _mm_div_ps(lhs, rhs);
 }
 
+inline _simd_f32x4 _simd_f32x4_cmpeq(_simd_f32x4 lhs, _simd_f32x4 rhs) {
+    __m128 res_cmp = _mm_cmpeq_ps(lhs, rhs);
+    int mask_val = _mm_movemask_ps(res_cmp);
+    return _mm_set_ps(float(mask_val >> 3), float((mask_val & 0b0111) >> 2), float((mask_val & 0b0011) >> 1), float(mask_val & 0b0001));
+}
+
 inline _simd_f32x4 _simd_f32x4_max(_simd_f32x4 lhs, _simd_f32x4 rhs) {
     return _mm_max_ps(lhs, rhs);
 }
@@ -175,6 +181,10 @@ inline _simd_f32x4x2 _simd_f32x4x2_mul(_simd_f32x4x2 lhs, _simd_f32x4x2 rhs) {
 
 inline _simd_f32x4x2 _simd_f32x4x2_div(_simd_f32x4x2 lhs, _simd_f32x4x2 rhs) {
     return _mm256_div_ps(lhs, rhs);
+}
+
+inline _simd_f32x4x2 _simd_f32x4x2_cmpeq(_simd_f32x4x2 lhs, _simd_f32x4x2 rhs) {
+    return _mm256_cmp_ps(lhs, rhs, 0x10);  // 0x10 means ordered, signaling
 }
 
 inline _simd_f32x4 _simd_f32x4x2_index(_simd_f32x4x2 src, const int index) {

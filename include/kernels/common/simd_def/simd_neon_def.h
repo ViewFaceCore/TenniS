@@ -104,6 +104,10 @@ inline _simd_f32x4 _simd_f32x4_div(_simd_f32x4 lhs, _simd_f32x4 rhs){
     return vmulq_f32(lhs, recip);
 }
 
+inline _simd_f32x4 _simd_f32x4_cmpeq(_simd_f32x4 lhs, _simd_f32x4 rhs) {
+    return vcvtq_f32_u32(vceqq_f32(lhs, rhs));
+}
+
 inline _simd_f32x4 _simd_f32x4_max(_simd_f32x4 lhs, _simd_f32x4 rhs) {
     return vmaxq_f32(lhs, rhs);
 }
@@ -202,7 +206,7 @@ inline _simd_f32x4 _simd_f32x4_interval_load(const _simd_f32* p, const int inc) 
 
 inline _simd_f32x4x2 _simd_f32x4x2_load(const _simd_f32 *p) {
     _simd_f32x4x2 res;
-    res.val[0] = vld1q_f32(p); 
+    res.val[0] = vld1q_f32(p);
     res.val[1] = vld1q_f32(p + 4);
     return std::move(res);
     //return vld2q_f32(p);
@@ -252,6 +256,13 @@ inline _simd_f32x4x2 _simd_f32x4x2_div(_simd_f32x4x2 lhs, _simd_f32x4x2 rhs) {
     _simd_f32x4 recip_1 = vrecpeq_f32(rhs.val[1]);
     res.val[0] = vmulq_f32(lhs.val[0], recip_0);
     res.val[1] = vmulq_f32(lhs.val[1], recip_1);
+    return std::move(res);
+}
+
+inline _simd_f32x4x2 _simd_f32x4x2_cmpeq(_simd_f32x4x2 lhs, _simd_f32x4x2 rhs) {
+    _simd_f32x4x2 res;
+    res.val[0] = vcvtq_f32_u32(vceqq_f32(lhs.val[0], rhs.val[0]));
+    res.val[1] = vcvtq_f32_u32(vceqq_f32(lhs.val[1], rhs.val[1]));
     return std::move(res);
 }
 

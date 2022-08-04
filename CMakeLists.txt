@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 2.7)
+cmake_minimum_required(VERSION 3.1)
 project(tennis)
 
 # set tennis version
-set(TS_VERSION "1.0.2")
+set(TS_VERSION "1.3.0")
 
 set(TARGET "SHARED" CACHE STRING "STATIC or SHARED" FORCE)
 add_definitions(-DBUILDING_TENNIS)
@@ -82,6 +82,21 @@ option(TS_USE_WINOGRAD "[Deprecated] Use Winograd" OFF)
 # ============================= Options end ================================== #
 #------------------------------------------------------------------------------#
 
+# ============================= Setup force config ============================#
+string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" PROCESSOR)
+if ("${PROCESSOR}" MATCHES "aarch64" OR
+    "${PROCESSOR}" MATCHES "arm64" OR
+    "${PROCESSOR}" MATCHES "armv8")
+    set(TS_ON_ARM ON)
+    set(TS_USE_NEON ON)
+elseif("${PROCESSOR}" MATCHES "armv7")
+    set(TS_ON_ARM ON)
+    set(TS_ON_ARMV7 ON)
+    set(TS_USE_NEON ON)
+elseif("${PROCESSOR}" MATCHES "arm")
+    set(TS_ON_ARM ON)
+endif()
+
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "")
     set(CONFIGURATION "Release")
 else ()
@@ -121,7 +136,7 @@ endif()
 
 # if target is target
 if (TS_ON_ARM)
-	add_definitions(-DTS_ON_ARM)
+    add_definitions(-DTS_ON_ARM)
 endif()
 if (TS_ON_ARMV7)
     add_definitions(-DTS_ON_ARMV7)
@@ -211,6 +226,8 @@ if (WIN32)
 elseif (APPLE)
     # list(APPEND third_libraries pthread)
     set(CMAKE_MACOSX_RPATH 1)
+elseif (ANDROID)
+    list(APPEND third_libraries log)
 elseif (UNIX)
     list(APPEND third_libraries pthread)
     list(APPEND third_libraries m)
@@ -378,11 +395,14 @@ else (IOS)
 endif (IOS)
 
 if (TS_BUILD_FRAMEWORK)
+    if ("${IOS_DEPLOYMENT_TARGET}" STREQUAL "") 
+        set(IOS_DEPLOYMENT_TARGET "9")
+    endif()
     set_target_properties(${PROJECT_NAME}_LIB PROPERTIES
             FRAMEWORK TRUE
             FRAMEWORK_VERSION A
             MACOSX_FRAMEWORK_IDENTIFIER com.seetatech.sdk.TenniS
-            # MACOSX_FRAMEWORK_INFO_PLIST Info.plist
+            MACOSX_FRAMEWORK_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Info.plist.in"
             # "current version" in semantic format in Mach-O binary file
             VERSION ${TS_VERSION}
             # "compatibility version" in semantic format in Mach-O binary file

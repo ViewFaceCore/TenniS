@@ -36,13 +36,16 @@ else()
 endif()
 
 # Use DLL multi-threads
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MD")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MD")
+# Use those flags by default.
+# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MD")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MD")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4819")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4819")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4800")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4800")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4996")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4996")
 
 if (TS_USE_DEBUG_API)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4251 /wd4275 /wd4910")

@@ -26,6 +26,21 @@ namespace ts {
         };
 
         /**
+         * @see ts_stream_readerV2
+         */
+        class StreamReaderV2 : public StreamReader {
+        public:
+            using self = StreamReaderV2;
+            using supper = StreamReader;
+
+            virtual void rewind() = 0;
+
+            static void C(void *obj) {
+                return reinterpret_cast<self *>(obj)->rewind();
+            }
+        };
+
+        /**
          * @see ts_stream_write
          */
         class StreamWriter {
@@ -65,6 +80,38 @@ namespace ts {
             std_stream &stream() { return m_stream; }
 
             const std_stream &stream() const { return m_stream; }
+
+        private:
+            std_stream m_stream;
+        };
+
+        class FileStreamReaderV2 : public StreamReaderV2 {
+        public:
+            using self = FileStreamReaderV2;
+            using supper = StreamReaderV2;
+            using std_stream = std::ifstream;
+
+            FileStreamReaderV2(const self &) = delete;
+
+            self &operator=(const self &) = delete;
+
+            FileStreamReaderV2();
+
+            explicit FileStreamReaderV2(const std::string &path);
+
+            void open(const std::string &path);
+
+            bool is_open() const;
+
+            void close();
+
+            uint64_t read(void *buffer, uint64_t size) final;
+
+            std_stream &stream() { return m_stream; }
+
+            const std_stream &stream() const { return m_stream; }
+
+            void rewind();
 
         private:
             std_stream m_stream;
@@ -127,51 +174,77 @@ namespace ts {
             uint64_t m_index = 0;
         };
 
-        bool FileStreamReader::is_open() const {
+        inline bool FileStreamReader::is_open() const {
             return m_stream.is_open();
         }
 
-        uint64_t FileStreamReader::read(void *buffer, uint64_t size) {
+        inline uint64_t FileStreamReader::read(void *buffer, uint64_t size) {
             m_stream.read(reinterpret_cast<char *>(buffer), size);
             return uint64_t(m_stream.gcount());
         }
 
-        FileStreamReader::FileStreamReader(const std::string &path)
+        inline FileStreamReader::FileStreamReader(const std::string &path)
                 : m_stream(path, std::ios::binary) {}
 
-        void FileStreamReader::open(const std::string &path) {
+        inline void FileStreamReader::open(const std::string &path) {
             m_stream.open(path, std::ios::binary);
         }
 
-        void FileStreamReader::close() {
+        inline void FileStreamReader::close() {
             m_stream.close();
         }
 
-        FileStreamReader::FileStreamReader() = default;
+        inline FileStreamReader::FileStreamReader() = default;
 
-        bool FileStreamWriter::is_open() const {
+        inline bool FileStreamReaderV2::is_open() const {
             return m_stream.is_open();
         }
 
-        uint64_t FileStreamWriter::write(const void *buffer, uint64_t size) {
+        inline uint64_t FileStreamReaderV2::read(void *buffer, uint64_t size) {
+            m_stream.read(reinterpret_cast<char *>(buffer), size);
+            return uint64_t(m_stream.gcount());
+        }
+
+        inline FileStreamReaderV2::FileStreamReaderV2(const std::string &path)
+                : m_stream(path, std::ios::binary) {}
+
+        inline void FileStreamReaderV2::open(const std::string &path) {
+            m_stream.open(path, std::ios::binary);
+        }
+
+        inline void FileStreamReaderV2::close() {
+            m_stream.close();
+        }
+
+        inline FileStreamReaderV2::FileStreamReaderV2() = default;
+
+        inline void FileStreamReaderV2::rewind() {
+            m_stream.seekg(0, std::ifstream::beg);
+        }
+
+        inline bool FileStreamWriter::is_open() const {
+            return m_stream.is_open();
+        }
+
+        inline uint64_t FileStreamWriter::write(const void *buffer, uint64_t size) {
             m_stream.write(reinterpret_cast<const char *>(buffer), size);
             return m_stream.bad() ? 0 : size;
         }
 
-        FileStreamWriter::FileStreamWriter(const std::string &path)
+        inline FileStreamWriter::FileStreamWriter(const std::string &path)
                 : m_stream(path, std::ios::binary) {}
 
-        void FileStreamWriter::open(const std::string &path) {
+        inline void FileStreamWriter::open(const std::string &path) {
             return m_stream.open(path, std::ios::binary);
         }
 
-        void FileStreamWriter::close() {
+        inline void FileStreamWriter::close() {
             m_stream.close();
         }
 
-        FileStreamWriter::FileStreamWriter() = default;
+        inline FileStreamWriter::FileStreamWriter() = default;
 
-        uint64_t BufferReader::read(void *buffer, uint64_t size) {
+        inline uint64_t BufferReader::read(void *buffer, uint64_t size) {
             if (m_buffer == nullptr || m_index >= m_size) return 0;
             auto read_size = std::min(size, m_size - m_index);
 
