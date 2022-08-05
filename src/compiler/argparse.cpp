@@ -24,7 +24,7 @@ namespace ts
         {
             cvt = str;
         }
-        std::transform(cvt.begin(), cvt.end(), cvt.begin(), std::tolower);
+        std::transform(cvt.begin(), cvt.end(), cvt.begin(), ::tolower);
         return cvt;
     }
 
