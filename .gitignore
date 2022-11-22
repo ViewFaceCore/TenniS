@@ -26,8 +26,3 @@
 /venv
 
 
-build/
-bin/
-lib/
-lib*/
-build.*/
